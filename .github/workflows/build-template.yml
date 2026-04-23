@@ -60,7 +60,7 @@ jobs:
             ./02-stage-audiodriver-2michat
             ./03-stage-wyoming-satellite
             ./04-stage-finish
-          release: bookworm
+          release: trixie
           compression: ${{ inputs.compression }}
           compression-level: ${{ inputs.compression-level }}
           pi-gen-repository: RPi-Distro/pi-gen
