@@ -1,7 +1,6 @@
 [Unit]
-Description=Wyoming Satellite
-After=network.target wyoming-openwakeword.service
-Wants=wyoming-openwakeword.service
+Description=Wyoming Satellite (VAD mode)
+After=network.target
 
 [Service]
 Type=simple
@@ -11,10 +10,9 @@ ExecStart=/opt/wyoming-satellite/bin/wyoming-satellite \
   --uri tcp://0.0.0.0:10700 \
   --mic-command "arecord -D ${MIC_DEVICE} -r 16000 -c 1 -f S16_LE -t raw" \
   --snd-command "aplay -D ${SND_DEVICE} -r 22050 -c 1 -f S16_LE -t raw" \
-  --wake-uri tcp://127.0.0.1:10400 \
-  --wake-word-name ${WAKE_WORD} \
-  --stt-uri  tcp://${WYOMING_SERVER_HOST}:${WYOMING_STT_PORT} \
-  --tts-uri  tcp://${WYOMING_SERVER_HOST}:${WYOMING_TTS_PORT} \
+  --vad \
+  --stt-uri    tcp://${WYOMING_SERVER_HOST}:${WYOMING_STT_PORT} \
+  --tts-uri    tcp://${WYOMING_SERVER_HOST}:${WYOMING_TTS_PORT} \
   --handle-uri tcp://${WYOMING_SERVER_HOST}:${WYOMING_HANDLE_PORT}
 Restart=on-failure
 RestartSec=10
