@@ -1,7 +1,8 @@
 git
-build-essential
+curl
+wget
 dkms
-raspberrypi-kernel-headers
+build-essential
 i2c-tools
-libasound2-plugins
 alsa-utils
+libasound2-plugins
