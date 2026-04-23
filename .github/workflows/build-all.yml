@@ -1,0 +1,55 @@
+name: Build All
+
+on:
+  push:
+    branches: [main, "feature/*", "fix/*"]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+jobs:
+  build-2michat:
+    uses: ./.github/workflows/build-template.yml
+    with:
+      image-name: wyoming-satellite-2MicHat
+      hostname: wyoming-satellite
+      compression: xz
+      compression-level: "6"
+
+  update-imager-json:
+    needs: [build-2michat]
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.ref, 'refs/tags/')"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate rpi-imager.json
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          REF="${{ github.ref_name }}"
+          BASE="https://github.com/${{ github.repository }}/releases/download/${REF}"
+          cat > rpi-imager.json << EOF
+          {
+            "imager": {
+              "latest_version": "${{ github.ref_name }}",
+              "url": "https://www.raspberrypi.com/software/"
+            },
+            "os_list": [
+              {
+                "name": "Wyoming Satellite Images",
+                "description": "Raspberry Pi images for Wyoming voice satellite (piclaw voice-pipeline)",
+                "subitems": [
+                  {
+                    "name": "Wyoming Satellite — ReSpeaker 2-Mic HAT (${DATE})",
+                    "description": "Pi Zero 2W + ReSpeaker 2-Mic HAT. Connects to piclaw voice-pipeline extension.",
+                    "url": "${BASE}/image_${DATE}-wyoming-satellite-2MicHat.img.xz",
+                    "devices": ["pi3-64bit", "pi3-32bit"]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+      - name: Commit rpi-imager.json
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "ci: update rpi-imager.json"
+          file_pattern: rpi-imager.json

@@ -1,0 +1,120 @@
+name: Build Wyoming Satellite Image (template)
+
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        required: true
+        type: string
+      hostname:
+        required: false
+        type: string
+        default: wyoming-satellite
+      compression:
+        required: false
+        type: string
+        default: xz
+      compression-level:
+        required: false
+        type: string
+        default: "6"
+
+jobs:
+  build:
+    name: Build ${{ inputs.image-name }}
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore APT cache
+        uses: actions/cache@v4
+        with:
+          path: apt-cache/
+          key: ${{ runner.os }}-apt-${{ inputs.image-name }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Set up apt-cacher-ng
+        run: |
+          mkdir -p apt-cache
+          sudo apt-get install -y apt-cacher-ng --no-install-suggests --no-install-recommends
+          sudo bash -c 'echo "Port: 9999" >> /etc/apt-cacher-ng/acng.conf'
+          sudo mv -f apt-cache/* /var/cache/apt-cacher-ng/ || true
+          sudo chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng
+          sudo service apt-cacher-ng restart
+
+      - name: Build image with pi-gen
+        uses: usimd/pi-gen-action@v1
+        id: build
+        with:
+          apt-proxy: http://172.17.0.1:9999
+          image-name: ${{ inputs.image-name }}
+          hostname: ${{ inputs.hostname }}
+          username: pi
+          password: raspberry
+          stage-list: >
+            stage0 stage1 stage2
+            ./01-stage-base
+            ./02-stage-audiodriver-2michat
+            ./03-stage-wyoming-satellite
+            ./04-stage-finish
+          release: bookworm
+          compression: ${{ inputs.compression }}
+          compression-level: ${{ inputs.compression-level }}
+          pi-gen-repository: RPi-Distro/pi-gen
+          pi-gen-version: arm64
+          pi-gen-dir: pi-gen
+          export-last-stage-only: true
+          enable-ssh: 1
+          locale: en_GB.UTF-8
+          keyboard-layout: English (UK)
+          keyboard-keymap: gb
+          timezone: Europe/London
+          disable-first-boot-user-rename: 1
+          pubkey-only-ssh: 0
+          verbose-output: true
+          github-token: ${{ github.token }}
+
+      - name: Generate SHA256
+        id: sha256
+        run: |
+          IMAGE="${{ steps.build.outputs.image-path }}"
+          if [ -f "$IMAGE" ]; then
+            HASH=$(sha256sum "$IMAGE" | awk '{print $1}')
+            SIZE=$(stat -c%s "$IMAGE")
+            echo "${HASH}  $(basename $IMAGE)" > "${IMAGE}.sha256"
+            echo "hash=${HASH}" >> $GITHUB_OUTPUT
+            echo "size=${SIZE}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Release (tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            ${{ steps.build.outputs.image-path }}
+            ${{ steps.build.outputs.image-path }}.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release (branch prerelease)
+        if: "!startsWith(github.ref, 'refs/tags/')"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            ${{ steps.build.outputs.image-path }}
+            ${{ steps.build.outputs.image-path }}.sha256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save APT cache
+        if: always()
+        run: |
+          mkdir -p apt-cache
+          sudo mv -f /var/cache/apt-cacher-ng/* apt-cache/ || true

@@ -1,0 +1,25 @@
+[Unit]
+Description=Wyoming Satellite
+After=network.target wyoming-openwakeword.service
+Wants=wyoming-openwakeword.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/wyoming-satellite/config.env
+ExecStart=/opt/wyoming-satellite/bin/wyoming-satellite \
+  --name "${SATELLITE_NAME}" \
+  --uri tcp://0.0.0.0:10700 \
+  --mic-command "arecord -D ${MIC_DEVICE} -r 16000 -c 1 -f S16_LE -t raw" \
+  --snd-command "aplay -D ${SND_DEVICE} -r 22050 -c 1 -f S16_LE -t raw" \
+  --wake-uri tcp://127.0.0.1:10400 \
+  --wake-word-name ${WAKE_WORD} \
+  --stt-uri  tcp://${WYOMING_SERVER_HOST}:${WYOMING_STT_PORT} \
+  --tts-uri  tcp://${WYOMING_SERVER_HOST}:${WYOMING_TTS_PORT} \
+  --handle-uri tcp://${WYOMING_SERVER_HOST}:${WYOMING_HANDLE_PORT}
+Restart=on-failure
+RestartSec=10
+User=pi
+SupplementaryGroups=audio
+
+[Install]
+WantedBy=multi-user.target

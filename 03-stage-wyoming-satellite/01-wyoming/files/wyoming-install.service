@@ -1,0 +1,15 @@
+[Unit]
+Description=Install Wyoming satellite and openWakeWord (first boot)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/opt/wyoming-satellite/bin/wyoming-satellite
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wyoming-install.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

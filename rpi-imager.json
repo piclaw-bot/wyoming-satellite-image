@@ -1,0 +1,20 @@
+{
+  "imager": {
+    "latest_version": "main",
+    "url": "https://www.raspberrypi.com/software/"
+  },
+  "os_list": [
+    {
+      "name": "Wyoming Satellite Images",
+      "description": "Raspberry Pi images for Wyoming voice satellite — connects to piclaw voice-pipeline extension",
+      "subitems": [
+        {
+          "name": "Wyoming Satellite — ReSpeaker 2-Mic HAT (latest)",
+          "description": "Pi Zero 2W + ReSpeaker 2-Mic HAT. Installs wyoming-satellite + openWakeWord. Edit /etc/wyoming-satellite/config.env after first boot.",
+          "url": "https://github.com/piclaw-bot/wyoming-satellite-image/releases/latest/download/wyoming-satellite-2MicHat.img.xz",
+          "devices": ["pi3-64bit", "pi3-32bit"]
+        }
+      ]
+    }
+  ]
+}

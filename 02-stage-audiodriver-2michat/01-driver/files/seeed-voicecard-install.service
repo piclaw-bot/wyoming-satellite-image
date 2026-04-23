@@ -1,0 +1,16 @@
+[Unit]
+Description=Install ReSpeaker 2-Mic HAT driver (seeed-voicecard)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=!/var/lib/seeed-voicecard-installed
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/seeed-voicecard-install.sh
+ExecStartPost=/bin/touch /var/lib/seeed-voicecard-installed
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
