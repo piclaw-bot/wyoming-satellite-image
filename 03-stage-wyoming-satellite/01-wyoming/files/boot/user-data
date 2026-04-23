@@ -1,0 +1,22 @@
+#cloud-config
+hostname: satellite
+manage_etc_hosts: true
+ssh_pwauth: true
+
+runcmd:
+  - iw reg set PT
+  - netplan apply
+  - systemctl restart NetworkManager
+
+users:
+  - name: pi
+    groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: "$6$rounds=4096$saltsaltsalt$Zq1234567890abcdef1234567890abcdef1234567890abcdef1234567890abc"
+    # Default password: raspberry  — change on first login!
+
+timezone: Europe/Lisbon
+keyboard:
+  model: pc105
+  layout: "us"

@@ -6,3 +6,6 @@ build-essential
 i2c-tools
 alsa-utils
 libasound2-plugins
+dphys-swapfile
+crda
+wireless-regdb

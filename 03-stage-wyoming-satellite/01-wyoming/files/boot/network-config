@@ -1,0 +1,13 @@
+# Wyoming Satellite — WiFi configuration
+# Edit SSID, password, and regulatory-domain before first boot.
+# This file lives on the FAT /boot/firmware/ partition.
+version: 2
+renderer: NetworkManager
+wifis:
+  wlan0:
+    dhcp4: true
+    optional: true
+    regulatory-domain: PT
+    access-points:
+      "YOUR_SSID":
+        password: "YOUR_PASSWORD"
