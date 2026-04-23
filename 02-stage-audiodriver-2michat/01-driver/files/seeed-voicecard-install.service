@@ -1,5 +1,5 @@
 [Unit]
-Description=Install ReSpeaker 2-Mic HAT driver (seeed-voicecard)
+Description=Install ReSpeaker 2-Mic HAT driver (seeed-voicecard) — first boot only
 After=network-online.target
 Wants=network-online.target
 ConditionPathExists=!/var/lib/seeed-voicecard-installed
@@ -7,10 +7,13 @@ ConditionPathExists=!/var/lib/seeed-voicecard-installed
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/seeed-voicecard-install.sh
-ExecStartPost=/bin/touch /var/lib/seeed-voicecard-installed
 RemainAfterExit=yes
+# Run at idle CPU/IO priority — keeps SSH and console responsive during DKMS build
+Nice=19
+IOSchedulingClass=idle
 StandardOutput=journal
 StandardError=journal
+TimeoutStartSec=1800
 
 [Install]
 WantedBy=multi-user.target
