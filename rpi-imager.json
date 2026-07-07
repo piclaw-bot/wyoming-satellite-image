@@ -9,9 +9,9 @@
       "description": "Raspberry Pi images for Wyoming voice satellite (piclaw voice-pipeline)",
       "subitems": [
         {
-          "name": "Wyoming Satellite — ReSpeaker 2-Mic HAT (2026-04-23)",
+          "name": "Wyoming Satellite — ReSpeaker 2-Mic HAT (2026-07-07)",
           "description": "Pi Zero 2W + ReSpeaker 2-Mic HAT. Connects to piclaw voice-pipeline extension.",
-          "url": "https://github.com/piclaw-bot/wyoming-satellite-image/releases/download/main/image_2026-04-23-wyoming-satellite-2MicHat.img.xz",
+          "url": "https://github.com/piclaw-bot/wyoming-satellite-image/releases/download/main/image_2026-07-07-wyoming-satellite-2MicHat.img.xz",
           "devices": ["pi3-64bit", "pi3-32bit"]
         }
       ]
